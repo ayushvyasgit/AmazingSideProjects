@@ -2,6 +2,13 @@ import { WebSocketServer } from "ws";
 
 const ws = new WebSocketServer({ port: 8080 });
 
+interface User{
+  socket:WebSocket;
+  room :string;
+}
+
+let allSockets :User[];
+
 const rooms = new Map(); // mark userId and Socket on room 
 ws.on("connection" , function(socket){
   console.log("new client added ")
@@ -18,10 +25,10 @@ ws.on("connection" , function(socket){
         if(!rooms.has(joinedRoom)){
           rooms.set(joinedRoom,new Set());
         }
+        rooms.get(joinedRoom).add(socket);
+        console.log(`"user joined" + ${joinedRoom}` );
+        return;
       }
-      rooms.get(joinedRoom).add(socket);
-      console.log(`"user joined" + ${joinedRoom}` );
-      return;
 
   //2 now if user send msg and rooms are joined ,send msg to room maped user
 
@@ -44,23 +51,15 @@ ws.on("connection" , function(socket){
       console.error("Invalid message received:", err.message);
     }
   });
-
   //Handle disconnection of user 
-
   socket.on('close',()=>{
     if(joinedRoom && rooms.has(joinedRoom)){//check if joinedRoom is their
-
       rooms.get(joinedRoom).delete(socket);
-      
       //clean if the room is empty \
-
       if(rooms.get(joinedRoom).size===0 ){
-
         rooms.delete(joinedRoom);
-
       }
     }
   })
 })
-
 console.log("websocket is running ")

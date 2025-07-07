@@ -22,10 +22,11 @@ function App(){
       setMessages(prev=>[...prev,data]);
     };
 
-    return()=>{
+    return () => {
       ws.close();
-    }
+    };
   },[])
+  
   function joinRoom(){
     const room = roomInputRef.current?.value.trim();
 
@@ -40,7 +41,9 @@ function App(){
     const message = inputRef.current?.value.trim();
     if (socket && message && roomId) {
       socket.send(JSON.stringify({ type: 'message', text: message, roomId }));
-      inputRef.current.value = '';
+      if (inputRef.current) {
+        inputRef.current.value = '';
+      }
     }
   }
   return(
